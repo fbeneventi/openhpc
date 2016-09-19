@@ -1,31 +1,48 @@
 # Dockerfile
 # Development
 # VERSION   0.0.1
+# how to run:
+#   ip:hostPort:containerPort
+#   docker run --name pbspro --hostname pbspro --detach --privileged --publish 2222:22 --publish 5432:5432 openhpc/pbspro
+# how to build:
+#   docker build --rm --tag openhpc/pbspro .
 
 FROM centos:latest
+ENV container=docker
 
 MAINTAINER Kim Goh <gaojingan@gmail.com>
+LABEL name="PBS Pro Base Image on Centos 7"
 
-RUN yum -y update
-RUN yum -y clean all
-RUN yum -y install bash-completion curl wget sudo rsync vim git unzip gcc make automake systemd-sysv \
-    initscripts openssh-server openssh-clients net-tools environment-modules
+# ADD CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 
-RUN ssh-keygen -q -N "" -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key
-RUN ssh-keygen -q -N "" -t rsa -b 2048 -f /root/.ssh/id_rsa
-RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
-RUN /bin/echo 'root:gaoxing' |chpasswd
+RUN yum clean all \
+    && yum -y makecache \
+    && yum -y update \
+    && yum -y install \
+    bash-completion curl wget git \
+    sudo rsync vim perl unzip \
+    systemd-sysv initscripts net-tools \
+    openssh-server openssh-clients \
+    systemd-devel postfix \
+    postgresql-devel postgresql-server \
+    postgresql postgresql-contrib pwgen \
+    && yum clean all
 
-RUN /bin/sed -i 's/.*session.*required.*pam_loginuid.so.*/session optional pam_loginuid.so/g' /etc/pam.d/sshd
-RUN /bin/echo -e "LANG=\"en_US.UTF-8\"" > /etc/default/local
+#Sudo requires a tty. fix that.
+RUN sed -i 's/.*requiretty$/#Defaults requiretty/' /etc/sudoers
+RUN su - postgres -c "PGDATA=/var/lib/pgsql/data initdb"
+RUN echo "host all all 0.0.0.0/0 md5" >> /var/lib/pgsql/data/pg_hba.conf \
+    && echo "listen_addresses = '*'" >> /var/lib/pgsql/data/postgresql.conf
 
-RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config
-RUN echo "UsePAM no" >> /etc/ssh/sshd_config
-RUN echo "UseDNS no" >> /etc/ssh/sshd_config
-RUN echo "Port 22" >> /etc/ssh/sshd_config
+# set locale
+RUN yum -y reinstall glibc-common && yum clean all
+ENV LANG zh_CN.UTF-8
+ENV LANGUAGE zh_CN.UTF-8
+ENV LC_ALL zh_CN.UTF-8
 
-EXPOSE 22
-ENV container=docker
+# set TimeZone
+RUN unlink /etc/localtime
+RUN ln -s /usr/share/zoneinfo/Shanghai /etc/localtime
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
 rm -f /lib/systemd/system/multi-user.target.wants/*;\
@@ -36,7 +53,43 @@ rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
 rm -f /lib/systemd/system/basic.target.wants/*;\
 rm -f /lib/systemd/system/anaconda.target.wants/*;
 
-RUN systemctl enable sshd
+# set sshd
+# user: root
+# passwd: gaoxing
+RUN ssh-keygen -q -N "" -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key
+RUN ssh-keygen -q -N "" -t rsa -b 2048 -f /root/.ssh/id_rsa
+RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
+RUN /bin/echo 'root:gaoxing' |chpasswd
 
-VOLUME [ "/sys/fs/cgroup" ]
+RUN /bin/sed -i 's/.*session.*required.*pam_loginuid.so.*/session optional pam_loginuid.so/g' /etc/pam.d/sshd
+
+RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config
+RUN echo "UsePAM no" >> /etc/ssh/sshd_config \
+    && echo "UseDNS no" >> /etc/ssh/sshd_config \
+    && echo "Port 22" >> /etc/ssh/sshd_config
+
+EXPOSE 22 5432
+VOLUME /sys/fs/cgroup /run /tmp
+
+RUN systemctl enable sshd postgresql
+
+RUN cd /root && git clone https://github.com/PBSPro/pbspro
+# ADD pbspro /root/pbspro
+RUN cd /root/pbspro \
+    && yum-builddep -y pbspro.spec \
+    && ./autogen.sh \
+    && ./configure --prefix=/opt/pbs --libexecdir=/opt/pbs/libexec \
+    && make dist \
+    && mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS} \
+    && cp $(ls |grep pbspro|grep tar.gz) /root/rpmbuild/SOURCES/ \
+    && cp pbspro.spec /root/rpmbuild/SPECS/ \
+    && cd /root/rpmbuild \
+    && rpmbuild -ba SPECS/pbspro.spec \
+    && yum -y install /root/rpmbuild/RPMS/x86_64/$(ls  /root/rpmbuild/RPMS/x86_64/|grep server)
+
+ADD StartPBS.sh /root/StartPBS.sh
+RUN chmod 755 /root/StartPBS.sh
+
+ENV HOME /root
+WORKDIR /root
 CMD ["/usr/sbin/init"]
