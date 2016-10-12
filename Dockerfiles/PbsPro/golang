@@ -19,7 +19,7 @@ proc ModulesHelp { } {
   set   datarootdir     ${prefix}/share
 
   setenv        GOROOT      $prefix
-  setenv        GOPATH      "/usr/local/go:/go"
+  setenv        GOPATH      "/go"
   setenv        GOBIN       /usr/local/go/bin:/go/bin
   setenv        GOOS        linux
   setenv        GOARCH      amd64
