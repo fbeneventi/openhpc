@@ -1,6 +1,6 @@
 # Dockerfile
 # Development
-# VERSION   0.0.1
+# VERSION   0.0.2
 # how to run:
 #   ip:hostPort:containerPort
 #   docker run --name pbspro --hostname pbspro --detach --privileged --publish 2222:22 --publish 5432:5432 openhpc/pbspro
