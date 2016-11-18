@@ -1,0 +1,13 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker info
+  - docker build --rm=false -t openhpc/rsync:latest -f Dockerfiles/rsync/Dockerfile .
+  - docker run -it --rm openhpc/rsync:latest "--version"; sleep 10
+  - docker ps -a
+
+script:
+  - /bin/sh -c 'date'
