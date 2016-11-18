@@ -5,7 +5,7 @@ machine:
 dependencies:
   override:
     - docker info
-    - docker build --rm=false .
+    - docker build --rm=false -t openhpc/rsync:latest -f Dockerfiles/rsync/Dockerfile .
 
 test:
   override:
