@@ -1,1 +1,1 @@
-# openhpc/rsync:latest [![CircleCI](https://circleci.com/gh/lcnja/openhpc/tree/master.svg?style=svg)](https://circleci.com/gh/lcnja/openhpc/tree/master)
+# openhpc/rsync:latest | [![CircleCI](https://circleci.com/gh/lcnja/openhpc/tree/master.svg?style=svg)](https://circleci.com/gh/lcnja/openhpc/tree/master) | [![Build Status](https://travis-ci.org/lcnja/openhpc.svg?branch=master)](https://travis-ci.org/lcnja/openhpc)
