@@ -9,4 +9,4 @@ dependencies:
 
 test:
   override:
-    - docker run -it -rm openhpc/rsync:latest "--version"; sleep 10
+    - docker run -it --rm openhpc/rsync:latest "--version"; sleep 10
