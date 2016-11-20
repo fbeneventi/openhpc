@@ -1,0 +1,5 @@
+build:
+  image: openhpc/kim
+  commands:
+    - echo hello >> output
+    - echo world >> output
