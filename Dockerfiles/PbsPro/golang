@@ -20,7 +20,7 @@ proc ModulesHelp { } {
 
   setenv        GOROOT      $prefix
   setenv        GOPATH      "/go"
-  setenv        GOBIN       /usr/local/go/bin:/go/bin
+  setenv        GOBIN       /usr/local/go/bin
   setenv        GOOS        linux
   setenv        GOARCH      amd64
 
