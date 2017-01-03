@@ -17,7 +17,7 @@ RUN rpm --rebuilddb \
     && yum clean all \
     && yum -y makecache \
     && yum -y update \
-    && yum -y install deltarpm systemd-sysv initscripts \
+    && yum -y install yum-plugin-ovl deltarpm systemd-sysv initscripts \
     systemd-devel postfix git \
     postgresql-devel postgresql-server \
     postgresql postgresql-contrib pwgen \
