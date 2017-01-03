@@ -21,7 +21,7 @@ RUN yum clean all \
     && yum -y install curl wget glibc-common \
     systemd-sysv initscripts net-tools \
     openssh-server openssh-clients \
-    systemd-devel postfix \
+    systemd-devel postfix git\
     postgresql-devel postgresql-server \
     postgresql postgresql-contrib pwgen \
     && yum clean all
