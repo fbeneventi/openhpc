@@ -73,7 +73,7 @@ RUN echo "UsePAM yes" >> /etc/ssh/sshd_config \
     && echo "UseDNS no" >> /etc/ssh/sshd_config \
     && echo "Port 22" >> /etc/ssh/sshd_config
 
-EXPOSE 22 # 5432
+EXPOSE 22
 VOLUME /sys/fs/cgroup /run /tmp
 
 RUN systemctl enable sshd postgresql
