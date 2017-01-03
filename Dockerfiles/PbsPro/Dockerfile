@@ -26,8 +26,6 @@ RUN yum clean all \
     postgresql postgresql-contrib pwgen \
     && yum clean all
 
-#Sudo requires a tty. fix that.
-RUN sed -i 's/.*requiretty$/#Defaults requiretty/' /etc/sudoers
 RUN su - postgres -c "PGDATA=/var/lib/pgsql/data initdb"
 RUN echo "host all all 0.0.0.0/0 md5" >> /var/lib/pgsql/data/pg_hba.conf \
     && echo "listen_addresses = '*'" >> /var/lib/pgsql/data/postgresql.conf
