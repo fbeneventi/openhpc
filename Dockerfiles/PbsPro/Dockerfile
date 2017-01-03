@@ -7,7 +7,7 @@
 # how to build:
 #   docker build --rm --tag openhpc/pbspro .
 
-FROM centos:latest
+FROM centos:7.2.1511
 ENV container=docker
 
 MAINTAINER Kim Goh <gaojingan@gmail.com>
