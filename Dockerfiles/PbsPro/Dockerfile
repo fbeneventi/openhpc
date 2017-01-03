@@ -13,20 +13,16 @@ ENV container=docker
 MAINTAINER Kim Goh <gaojingan@gmail.com>
 LABEL name="PBS Pro Base Image on Centos 7"
 
-# ADD CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
-
 RUN yum clean all \
     && yum -y makecache \
     && yum -y update \
-    && yum -y install curl wget glibc-common \
-    systemd-sysv initscripts net-tools \
-    openssh-server openssh-clients \
-    systemd-devel postfix git\
+    && yum -y install systemd-sysv initscripts \
+    systemd-devel postfix git \
     postgresql-devel postgresql-server \
     postgresql postgresql-contrib pwgen \
     && yum clean all
 
-RUN su - postgres -c "PGDATA=/var/lib/pgsql/data initdb"
+# RUN su - postgres -c "PGDATA=/var/lib/pgsql/data initdb"
 RUN echo "host all all 0.0.0.0/0 md5" >> /var/lib/pgsql/data/pg_hba.conf \
     && echo "listen_addresses = '*'" >> /var/lib/pgsql/data/postgresql.conf
 
@@ -40,33 +36,7 @@ ENV LC_ALL en_US.UTF-8
 RUN unlink /etc/localtime \
     && ln -s /usr/share/zoneinfo/Shanghai /etc/localtime
 
-RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
-rm -f /lib/systemd/system/multi-user.target.wants/*;\
-rm -f /etc/systemd/system/*.wants/*;\
-rm -f /lib/systemd/system/local-fs.target.wants/*; \
-rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-rm -f /lib/systemd/system/basic.target.wants/*;\
-rm -f /lib/systemd/system/anaconda.target.wants/*;
-
-# set sshd
-# user: root
-# passwd: gaoxing
-RUN ssh-keygen -q -N "" -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key
-RUN ssh-keygen -q -N "" -t rsa -b 2048 -f /root/.ssh/id_rsa
-RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
-RUN /bin/echo 'root:gaoxing' |chpasswd
-
-RUN /bin/sed -i 's/.*session.*required.*pam_loginuid.so.*/session optional pam_loginuid.so/g' /etc/pam.d/sshd
-
-RUN echo "UsePAM yes" >> /etc/ssh/sshd_config \
-    && echo "UseDNS no" >> /etc/ssh/sshd_config \
-    && echo "Port 22" >> /etc/ssh/sshd_config
-
-EXPOSE 22
 VOLUME /sys/fs/cgroup /run /tmp
-
-RUN systemctl enable sshd postgresql
 
 RUN cd /root && git clone https://github.com/PBSPro/pbspro
 
