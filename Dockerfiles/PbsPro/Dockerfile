@@ -16,11 +16,10 @@ LABEL name="PBS Pro Base Image on Centos 7"
 # ADD CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 
 RUN yum clean all \
-    && yum -y makecache \
     && yum -y update \
     && yum -y install \
-    bash-completion curl wget git \
-    sudo rsync vim perl unzip \
+    bash-completion curl wget \
+    sudo unzip \
     systemd-sysv initscripts net-tools \
     openssh-server openssh-clients \
     systemd-devel postfix \
@@ -28,6 +27,11 @@ RUN yum clean all \
     postgresql postgresql-contrib pwgen \
     environment-modules \
     && yum clean all
+
+ADD git-2.11.0-1.el7.centos.x86_64.rpm /root/git-2.11.0-1.el7.centos.x86_64.rpm
+ADD perl-Git-2.11.0-1.el7.centos.x86_64.rpm /root/perl-Git-2.11.0-1.el7.centos.x86_64.rpm
+
+RUN yum install -y /root/git-2.11.0-1.el7.centos.x86_64.rpm /root/perl-Git-2.11.0-1.el7.centos.x86_64.rpm
 
 #Sudo requires a tty. fix that.
 RUN sed -i 's/.*requiretty$/#Defaults requiretty/' /etc/sudoers
@@ -37,9 +41,9 @@ RUN echo "host all all 0.0.0.0/0 md5" >> /var/lib/pgsql/data/pg_hba.conf \
 
 # set locale
 RUN yum -y reinstall glibc-common && yum clean all
-ENV LANG zh_CN.UTF-8
-ENV LANGUAGE zh_CN.UTF-8
-ENV LC_ALL zh_CN.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
 
 # set TimeZone
 RUN unlink /etc/localtime
@@ -65,11 +69,11 @@ RUN /bin/echo 'root:gaoxing' |chpasswd
 RUN /bin/sed -i 's/.*session.*required.*pam_loginuid.so.*/session optional pam_loginuid.so/g' /etc/pam.d/sshd
 
 RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config
-RUN echo "UsePAM no" >> /etc/ssh/sshd_config \
+RUN echo "UsePAM yes" >> /etc/ssh/sshd_config \
     && echo "UseDNS no" >> /etc/ssh/sshd_config \
     && echo "Port 22" >> /etc/ssh/sshd_config
 
-EXPOSE 22 5432
+EXPOSE 22 # 5432
 VOLUME /sys/fs/cgroup /run /tmp
 
 RUN systemctl enable sshd postgresql
@@ -86,7 +90,8 @@ RUN cd /root/pbspro \
     && cp pbspro.spec /root/rpmbuild/SPECS/ \
     && cd /root/rpmbuild \
     && rpmbuild -ba SPECS/pbspro.spec \
-    && yum -y install /root/rpmbuild/RPMS/x86_64/$(ls  /root/rpmbuild/RPMS/x86_64/|grep server)
+    && rm -fr /root/pbspro /root/rpmbuild/BUILD/*
+    # && yum -y install /root/rpmbuild/RPMS/x86_64/$(ls  /root/rpmbuild/RPMS/x86_64/|grep server)
 
 ADD StartPBS.sh /root/StartPBS.sh
 RUN chmod 755 /root/StartPBS.sh
