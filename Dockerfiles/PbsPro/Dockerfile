@@ -16,7 +16,7 @@ LABEL name="PBS Pro Base Image on Centos 7"
 RUN yum clean all \
     && yum -y makecache \
     && yum -y update \
-    && yum -y install systemd-sysv initscripts \
+    && yum -y install deltarpm systemd-sysv initscripts \
     systemd-devel postfix git \
     postgresql-devel postgresql-server \
     postgresql postgresql-contrib pwgen \
