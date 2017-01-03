@@ -13,7 +13,8 @@ ENV container=docker
 MAINTAINER Kim Goh <gaojingan@gmail.com>
 LABEL name="PBS Pro Base Image on Centos 7"
 
-RUN yum clean all \
+RUN rpm --rebuilddb \
+    && yum clean all \
     && yum -y makecache \
     && yum -y update \
     && yum -y install deltarpm systemd-sysv initscripts \
