@@ -14,7 +14,7 @@ MAINTAINER Kim Goh <gaojingan@gmail.com>
 LABEL name="PBS Pro Base Image on Centos 7"
 
 RUN rpm --rebuilddb \
-    && yum -y install yum-plugin-ovl deltarpm yum-utils
+    && yum -y install yum-plugin-ovl deltarpm yum-utils glibc-common
     
 RUN yum clean all \
     && yum -y makecache \
