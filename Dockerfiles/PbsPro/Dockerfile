@@ -14,10 +14,12 @@ MAINTAINER Kim Goh <gaojingan@gmail.com>
 LABEL name="PBS Pro Base Image on Centos 7"
 
 RUN rpm --rebuilddb \
-    && yum clean all \
+    && yum -y install yum-plugin-ovl deltarpm
+    
+RUN yum clean all \
     && yum -y makecache \
     && yum -y update \
-    && yum -y install yum-plugin-ovl deltarpm systemd-sysv initscripts \
+    && yum -y install  systemd-sysv initscripts \
     systemd-devel postfix git \
     postgresql-devel postgresql-server \
     postgresql postgresql-contrib pwgen \
@@ -52,8 +54,3 @@ RUN cd /root/pbspro \
     && cd /root/rpmbuild \
     && rpmbuild -ba SPECS/pbspro.spec \
     && rm -fr /root/pbspro /root/rpmbuild/BUILD/*
-  
-ENV HOME /root
-WORKDIR /root
-
-CMD ["/usr/sbin/init"]
