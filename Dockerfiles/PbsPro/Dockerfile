@@ -63,3 +63,5 @@ RUN cd /root/pbspro \
     && cd /root/rpmbuild \
     && rpmbuild -ba SPECS/pbspro.spec \
     && rm -fr /root/pbspro /root/rpmbuild/BUILD/*
+
+CMD ["/usr/sbin/init"]
