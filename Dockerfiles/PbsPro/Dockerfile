@@ -40,7 +40,8 @@ RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == system
     rm -f /lib/systemd/system/anaconda.target.wants/*;
 
 # set locale
-RUN yum -y reinstall glibc-common; yum clean all; localedef -v -c -i en_US -f UTF-8 en_US.UTF-8
+RUN yum -y reinstall glibc-common; yum clean all
+RUN localedef -v -c -i en_US -f UTF-8 en_US.UTF-8 > /dev/null 2>&1
     
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
