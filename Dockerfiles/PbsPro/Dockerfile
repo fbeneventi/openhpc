@@ -8,7 +8,8 @@
 #   docker build --rm --tag openhpc/pbspro .
 
 FROM centos:7.2.1511
-ENV container=docker
+
+ENV container docker
 
 MAINTAINER Kim Goh <gaojingan@gmail.com>
 LABEL name="PBS Pro Base Image on Centos 7"
@@ -30,13 +31,13 @@ RUN echo "host all all 0.0.0.0/0 md5" >> /var/lib/pgsql/data/pg_hba.conf \
     && echo "listen_addresses = '*'" >> /var/lib/pgsql/data/postgresql.conf
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
-rm -f /lib/systemd/system/multi-user.target.wants/*;\
-rm -f /etc/systemd/system/*.wants/*;\
-rm -f /lib/systemd/system/local-fs.target.wants/*; \
-rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-rm -f /lib/systemd/system/basic.target.wants/*;\
-rm -f /lib/systemd/system/anaconda.target.wants/*;
+    rm -f /lib/systemd/system/multi-user.target.wants/*;\
+    rm -f /etc/systemd/system/*.wants/*;\
+    rm -f /lib/systemd/system/local-fs.target.wants/*; \
+    rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+    rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+    rm -f /lib/systemd/system/basic.target.wants/*;\
+    rm -f /lib/systemd/system/anaconda.target.wants/*;
 
 # set locale
 RUN yum -y reinstall glibc-common && yum clean all
@@ -48,7 +49,7 @@ ENV LC_ALL en_US.UTF-8
 RUN unlink /etc/localtime \
     && ln -s /usr/share/zoneinfo/Shanghai /etc/localtime
 
-VOLUME /sys/fs/cgroup /run /tmp
+VOLUME [ "/sys/fs/cgroup" ]
 
 RUN cd /root && git clone https://github.com/PBSPro/pbspro
 
