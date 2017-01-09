@@ -2,10 +2,19 @@
 # Development
 # VERSION   0.0.3
 # how to run:
-#   docker run --name dev --hostname dev --detach \
-#       --privileged --publish a_port_for_sshd:22 openhpc/golang-dev-env
+#   docker run \
+#       --name dev \
+#       --hostname dev \
+#       --detach \
+#       --volume /sys/fs/cgroup:/sys/fs/cgroup:ro --volume /run \
+#       --cap-add SYS_ADMIN \
+#       --publish a_port_for_sshd:22 \
+#       openhpc/golang-dev-env
+#
 # how to build:
 #   docker build --rm --tag openhpc/golang-dev-env .
+# how to add/rm golang env:
+#   module add/rm golang
 
 FROM centos:7.2.1511
 
@@ -15,13 +24,11 @@ LABEL name="Golang dev env image on Centos 7"
 # Set Env
 ENV container docker
 
-RUN rpm --rebuilddb \
-    && yum -y install yum-plugin-ovl deltarpm yum-utils glibc-common
-
-RUN yum clean all \
+RUN rpm --rebuilddb; \
+    yum clean all \
     && yum -y makecache \
     && yum -y update \
-    && yum -y install systemd-sysv initscripts \
+    && yum -y install yum-plugin-ovl deltarpm yum-utils glibc-common systemd-sysv initscripts \
     systemd-devel environment-modules git curl \
     openssh-server openssh-clients openssh net-tools \
     && yum clean all
@@ -60,12 +67,8 @@ ENV GOLANG_DOWNLOAD_SHA256 702ad90f705365227e902b42d91dd1a40e48ca7f67a2f4b2fd052
 RUN curl -fsSL "$GOLANG_DOWNLOAD_URL" -o golang.tar.gz \
     && echo "$GOLANG_DOWNLOAD_SHA256  golang.tar.gz" | sha256sum -c - \
     && tar -C /usr/local -xzf golang.tar.gz \
-    && rm golang.tar.gz
-
-ENV GOPATH /go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
-
-RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
+    && rm golang.tar.gz \
+    && mkdir -p "$GOPATH/{src/bin/pkg}";
 
 ADD golang.module /usr/share/Modules/modulefiles/golang
 
