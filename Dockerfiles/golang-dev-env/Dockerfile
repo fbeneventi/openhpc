@@ -9,10 +9,11 @@
 
 FROM centos:7.2.1511
 
-ENV container docker
-
 MAINTAINER Kim Goh <gaojingan [a@t] gmail.com>
 LABEL name="Golang dev env image on Centos 7"
+
+# Set Env
+ENV container docker
 
 RUN rpm --rebuilddb \
     && yum -y install yum-plugin-ovl deltarpm yum-utils glibc-common
@@ -22,7 +23,7 @@ RUN yum clean all \
     && yum -y update \
     && yum -y install systemd-sysv initscripts \
     systemd-devel environment-modules git curl \
-    openssh-server openssh-clients openssh \
+    openssh-server openssh-clients openssh net-tools \
     && yum clean all
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
@@ -31,10 +32,13 @@ RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == system
     rm -f /lib/systemd/system/local-fs.target.wants/*; \
     rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
     rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-    rm -f /lib/systemd/system/basic.target.wants/*;\
-    rm -f /lib/systemd/system/anaconda.target.wants/*;
+    rm -f /lib/systemd/system/basic.target.wants/*; \
+    rm -f /lib/systemd/system/anaconda.target.wants/*; \
+    rm -fr /usr/lib/systemd/system/systemd-update-utmp* \
+    rm -fr /etc/sysconfig/network-scripts/ifcfg-e*;
 
 VOLUME [ "/sys/fs/cgroup" ]
+VOLUME /run /tmp
 
 # set locale
 RUN yum -y reinstall glibc-common; yum clean all
