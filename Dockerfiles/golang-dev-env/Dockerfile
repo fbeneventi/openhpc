@@ -63,7 +63,7 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
-RUN cat > /usr/share/Modules/modulefiles/golang <<EOF
+RUN cat > /usr/share/Modules/modulefiles/golang <<'EOF'
 #%Module1.0#############################################################
 ## /usr/share/Modules/modulefiles/golang
 ## golang 1.7 module file
