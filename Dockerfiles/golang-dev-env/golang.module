@@ -1,0 +1,29 @@
+#%Module1.0#############################################################
+## /usr/share/Modules/modulefiles/golang
+## golang 1.7 module file
+
+conflict golang
+
+proc ModulesHelp { } {
+        global version
+        puts stderr "\tAdds Golang 1.7 to your PATH environment variable"
+}
+
+  module-whatis "loads the golang v1.7"
+
+  set    app            golang
+  set    version        1.7
+  set    prefix         /usr/local/go
+
+  set   exec_prefix     ${prefix}
+  set   datarootdir     ${prefix}/share
+
+  setenv        GOROOT      $prefix
+  setenv        GOPATH      "/go"
+  setenv        GOBIN       /usr/local/go/bin
+  setenv        GOOS        linux
+  setenv        GOARCH      amd64
+
+  prepend-path  PATH    ${exec_prefix}/bin
+  append-path    PATH    /go/bin
+  append-path    PATH    .

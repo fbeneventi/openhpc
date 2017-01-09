@@ -63,36 +63,25 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
-RUN cat > /usr/share/Modules/modulefiles/golang <<'EOF'
-#%Module1.0#############################################################
-## /usr/share/Modules/modulefiles/golang
-## golang 1.7 module file
-##
-conflict golang
+ADD golang.module /usr/share/Modules/modulefiles/golang
 
-proc ModulesHelp { } {
-        global version
-        puts stderr "\tAdds Golang 1.7 to your PATH environment variable"
-}
+# set sshd
+# user: root
+# passwd: gaoxing
+RUN ssh-keygen -q -N "" -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key \
+    && ssh-keygen -q -N "" -t rsa -b 2048 -f /root/.ssh/id_rsa \
+    && cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys \
+    && /bin/sed -i 's/.*session.*required.*pam_loginuid.so.*/session optional pam_loginuid.so/g' /etc/pam.d/sshd \
+    && sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config \
+    && echo "UsePAM yes" >> /etc/ssh/sshd_config \
+    && echo "UseDNS no" >> /etc/ssh/sshd_config \
+    && echo "Port 22" >> /etc/ssh/sshd_config \
+    && echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config \
+    && echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config \
+    && echo 'TCPKeepAlive yes' >> /etc/ssh/sshd_config \
+    && /bin/echo 'root:gaoxing' | chpasswd \
+    && systemctl enable sshd
 
-  module-whatis "loads the golang v1.7"
-
-  set    app            golang
-  set    version        1.7
-  set    prefix         /usr/local/go
-
-  set   exec_prefix     ${prefix}
-  set   datarootdir     ${prefix}/share
-
-  setenv        GOROOT      $prefix
-  setenv        GOPATH      "/go"
-  setenv        GOBIN       /usr/local/go/bin
-  setenv        GOOS        linux
-  setenv        GOARCH      amd64
-
-  prepend-path  PATH    ${exec_prefix}/bin
-  append-path    PATH    /go/bin
-  append-path    PATH    .
-EOF
+EXPOSE 22
 
 CMD ["/usr/sbin/init"]
