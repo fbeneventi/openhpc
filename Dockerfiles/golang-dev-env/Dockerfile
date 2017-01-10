@@ -1,7 +1,7 @@
 # Dockerfile
 # Development
 # VERSION   0.0.3
-# how to run:
+###### how to run directly:
 #   docker run \
 #       --name dev \
 #       --hostname dev \
@@ -10,11 +10,45 @@
 #       --cap-add SYS_ADMIN \
 #       --publish a_port_for_sshd:22 \
 #       openhpc/golang-dev-env
+###### how to run via docker-compose:
+# version: '2'                                               
+# services:                                                  
+#   golang:                                                  
+#     build: .                                               
+#     image: openhpc/golang-dev-env:latest
+#     container_name: golang
+#     hostname: golang
+#     restart: on-failure:2
+#     tty: true                                              
+#     stdin_open: true                                       
+#     privileged: true                                       
+#     mem_limit: 2048M                                       
+#     volumes:                                               
+#       - /var/lib/docker/golang-dev-env/root/work:/root/work      
+#     ports:                                                 
+#       - "21022:22"                                         
+#     networks:
+#       dev:
+#         ipv4_address: 172.21.1.11
+#     environment:
+#       Author: "Kim Goh"
+#     dns: 8.8.8.8                                                        
+# networks:
+#   dev: 
+#     driver: bridge
+#     driver_opts:
+#       com.docker.network.enable_ipv6: "false"
+#     ipam:
+#       driver: default
+#       config:
+#         - subnet: 172.21.1.0/24
+#           gateway: 172.21.1.1
 #
-# how to build:
+###### how to build:
 #   docker build --rm --tag openhpc/golang-dev-env .
-# how to add/rm golang env:
-#   module add/rm golang
+#
+###### how to add/rm golang env:
+#   module add/rm golang/1.7
 
 FROM centos:7.2.1511
 
