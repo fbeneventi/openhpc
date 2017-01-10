@@ -70,7 +70,8 @@ RUN curl -fsSL "$GOLANG_DOWNLOAD_URL" -o golang.tar.gz \
     && rm golang.tar.gz \
     && mkdir -p "$GOPATH/{src/bin/pkg}";
 
-ADD golang.module /usr/share/Modules/modulefiles/golang
+ADD golang.module /etc/modulefiles/golang/1.7
+RUN echo "module add golang" >> .bashrc
 
 # set sshd
 # user: root
