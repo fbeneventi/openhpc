@@ -114,6 +114,7 @@ RUN ssh-keygen -q -N "" -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key \
     && ssh-keygen -q -N "" -t rsa -b 2048 -f /root/.ssh/id_rsa \
     && cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys \
     && /bin/sed -i 's/.*session.*required.*pam_loginuid.so.*/session optional pam_loginuid.so/g' /etc/pam.d/sshd \
+    && sed -i 's/account    required     pam_nologin.so/#account    required     pam_nologin.so/g' /etc/pam.d/sshd \
     && sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config \
     && echo "UsePAM yes" >> /etc/ssh/sshd_config \
     && echo "UseDNS no" >> /etc/ssh/sshd_config \
